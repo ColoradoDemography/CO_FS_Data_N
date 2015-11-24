@@ -5,11 +5,16 @@ var Promise = require('es6-promise').Promise;
 var json2csv = require('json2csv');
 var fs = require("fs");  //filestream
 
-//allocation crosswalk
-var crosswalk = require('../CO_FS_Data_PHP/lgid_place_crosswalk.json');
+var express = require('express');
+var app = express();
 
-
-//date range
+// respond with "Hello World!" on the homepage
+app.get('/', function (req, res) {
+  
+  
+  //res.send('id: ' + req.query.time);
+  
+  //date range
 var min_date = new Date(2008,6,1);
 var max_date = new Date(2015,5,30);
 
@@ -111,19 +116,13 @@ request({
 });
 
 
-
-
 //combine to common schema =grantscombined
 //wait for both promises to complete
 Promise.all([promise1, promise2]).then(function(values) { 
 
   var competitive = values[0];
   var formulaic = values[1];
-  
-    //console.log(competitive);
-  //console.log(competitive.length);
-  //console.log(formulaic);
-  //console.log(formulaic.length);
+
   
   var allgrants=[];
   
@@ -191,9 +190,9 @@ Promise.all([promise1, promise2]).then(function(values) {
     if(allgrants[j]["COUNTY"]){
     cvar = (allgrants[j]["COUNTY"]);
     if (cvar.indexOf(',') > -1) { 
-      //console.log(cvar);
+
       var countylist=cvar.split(", ");
-      //console.log(countylist);
+
 
       var county_count = countylist.length;
       for(var k=0; k<county_count; k=k+1){
@@ -234,14 +233,11 @@ Promise.all([promise1, promise2]).then(function(values) {
     if(comma_check.indexOf(',') === -1){ 
       return true; 
     }else{
-      //console.log('removing: ' + comma_check);
       return false;
     }
       }
     });
-    
-    console.log("allgrants: "+allgrants.length);
-    console.log("splitgrants: "+splitgrants.length);
+
     
     //merge the new array (splitgrants) with the old array (allgrants)
   var countygrants = allgrants.concat(splitgrants);  
@@ -271,19 +267,35 @@ var result = _.chain(allgrants)
     })
     .value();
 
-//console.log(result);
   
 
 json2csv({ data: result }, function(err, csv) {
-  console.log('hit');
+
   if (err) console.log(err);
   fs.writeFile('file.csv', csv, function(err) {
     if (err) throw err;
-    console.log('file saved');
+    
+      res.set({
+    "Content-Disposition": 'attachment; filename="file.csv"',
+    "Content-Type": "text/csv"
+});
+
+  res.sendFile('file.csv', {"root": "/home/nitrous/code/public_html/CO_FS_Data_N/"});
+    
   });
 });
   
   
 }
 
-// var result = _(my_object).omit(_.isUndefined).omit(_.isNull).value();
+
+  
+});
+
+
+var server = app.listen(4000, function () {
+  var host = server.address().address;
+  var port = server.address().port;
+
+  console.log('Example app listening at http://%s:%s', host, port);
+});

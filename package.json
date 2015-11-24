@@ -1,0 +1,22 @@
+{
+  "name": "co_fs_data_n",
+  "version": "1.0.0",
+  "description": "grant processing using nodejs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/royhobbstn/CO_FS_Data_N.git"
+  },
+  "author": "Daniel Trone",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/royhobbstn/CO_FS_Data_N/issues"
+  },
+  "homepage": "https://github.com/royhobbstn/CO_FS_Data_N#readme",
+  "dependencies": {
+    "express": "^4.13.3"
+  }
+}
