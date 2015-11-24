@@ -8,16 +8,6 @@ var fs = require("fs");  //filestream
 var express = require('express');
 var app = express();
 
-// respond with "Hello World!" on the homepage
-app.get('/', function (req, res) {
-  
-  
-  //res.send('id: ' + req.query.time);
-  
-  //date range
-var min_date = new Date(2008,6,1);
-var max_date = new Date(2015,5,30);
-
 
 //functions
 function convertmonthtext(monthtext){
@@ -39,13 +29,19 @@ function parseDate(dateofaward){
   
   //if date is undefined in source data, it will fall through to second return
   if(dateofaward){
-       var awardday=parseInt(dateofaward.substr(0,2));
-       var awardmonth=dateofaward.substr(3,3);
-       var awardyear=dateofaward.substr(7,2);
+    
+       splitdate=dateofaward.split("-");
+       console.log(splitdate[0],splitdate[1],splitdate[2]);
+    
+       var awardday=parseInt(splitdate[0]);
+       var awardmonth=splitdate[1];
+       var awardyear=splitdate[2];
        
        //hopefully my code doesn't last long enough where this will be a problem
-       var preyear; //adds correct century digits
-       if(parseInt(awardyear)>50){preyear="19";}else{preyear="20";}
+       var preyear=""; //adds correct century digits if needed
+       if(parseInt(awardyear)>50 && parseInt(awardyear)<100){preyear="19";}
+       if(parseInt(awardyear)<49){preyear="20";}    
+
        awardyear=preyear+awardyear;
                   
        return  new Date(parseInt(awardyear), convertmonthtext(awardmonth), awardday);
@@ -54,6 +50,47 @@ function parseDate(dateofaward){
   
   return new Date(1950, 0, 1);  //no date passed - flag error later for data validation
 }
+
+
+
+
+// respond with "Hello World!" on the homepage
+app.get('/', function (req, res) {
+  
+  
+var min_date, max_date;
+  
+  //date range validation
+  if(req.query.start){
+    min_date = parseDate(req.query.start);
+  }else{
+    res.send("missing start date");
+    return;
+  }
+  
+  if(req.query.end){
+    max_date = parseDate(req.query.end);
+  }else{
+    res.send("missing end date");
+    return;
+  }        
+
+  if(max_date<min_date){
+    res.send("invalid date range");
+    return;
+  }else{
+    //everything okay
+    res.send(min_date + " " + max_date);
+  }
+
+  
+  return;
+  
+  
+  
+  
+  
+  
 
 
 //--TASK 1-- filter by program and date
@@ -118,7 +155,7 @@ request({
 
 //combine to common schema =grantscombined
 //wait for both promises to complete
-Promise.all([promise1, promise2]).then(function(values) { 
+Promise.all([promise1, promise2]).then(function(values) {
 
   var competitive = values[0];
   var formulaic = values[1];
@@ -181,8 +218,19 @@ Promise.all([promise1, promise2]).then(function(values) {
     );
   }  
   
-
-  var splitgrants=[];
+  
+  
+  exportfile(allgrants);
+  
+  //splitgrants2counties(allgrants);
+  
+ 
+});
+  
+//split multicounty records into multiple records  
+function splitgrants2counties(allgrants){
+  
+    var splitgrants=[];
   
   for(j=0;j<(allgrants.length);j=j+1){
     
@@ -242,14 +290,11 @@ Promise.all([promise1, promise2]).then(function(values) {
     //merge the new array (splitgrants) with the old array (allgrants)
   var countygrants = allgrants.concat(splitgrants);  
   
+   split_awards(countygrants);  
   
- split_awards(countygrants);  
-    
-  
-});
+}  
 
-//--TASK 2-- aggregate awards to county level
-
+//aggregate awards to county level
 function split_awards(allgrants){
   
 function sum(numbers) {
@@ -257,6 +302,7 @@ function sum(numbers) {
         return result + parseFloat(current);
     }, 0);
 }
+  
 var result = _.chain(allgrants)
     .groupBy("COUNTY")
     .map(function(value, key) {
@@ -267,8 +313,16 @@ var result = _.chain(allgrants)
     })
     .value();
 
-  
+exportfile(result);  
 
+
+  
+  
+}
+  
+//export a csv  
+function exportfile(result)  {
+  
 json2csv({ data: result }, function(err, csv) {
 
   if (err) console.log(err);
@@ -283,12 +337,9 @@ json2csv({ data: result }, function(err, csv) {
   res.sendFile('file.csv', {"root": "/home/nitrous/code/public_html/CO_FS_Data_N/"});
     
   });
-});
-  
+});  
   
 }
-
-
   
 });
 
