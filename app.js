@@ -31,7 +31,6 @@ function parseDate(dateofaward){
   if(dateofaward){
     
        splitdate=dateofaward.split("-");
-       console.log(splitdate[0],splitdate[1],splitdate[2]);
     
        var awardday=parseInt(splitdate[0]);
        var awardmonth=splitdate[1];
@@ -55,12 +54,11 @@ function parseDate(dateofaward){
 
 
 // respond with "Hello World!" on the homepage
-app.get('/', function (req, res) {
-  
-  
-var min_date, max_date;
+app.get('/gather', function (req, res) {
   
   //date range validation
+  var min_date, max_date;
+
   if(req.query.start){
     min_date = parseDate(req.query.start);
   }else{
@@ -78,19 +76,29 @@ var min_date, max_date;
   if(max_date<min_date){
     res.send("invalid date range");
     return;
-  }else{
-    //everything okay
-    res.send(min_date + " " + max_date);
   }
 
+  //"FML", "SEV_DIST", "VFP", "CTF", "SAR", "FFB", "EIAF", "GAME", "REDI", "DR", "CSBG", "CDBG", "TIRE", "CHPG", "BEAN"
+  var program = false;
   
-  return;
+  if(req.query.program){
+    program=(req.query.program).split(",");
+  }
   
+  var county = false;
   
+  if(req.query.county){
+    county=(req.query.county).split(",");
+  }
   
+  var lgid = false;
   
+  if(req.query.lgid){
+    lgid=(req.query.lgid).split(",");
+  }
+    
   
-  
+ 
 
 
 //--TASK 1-- filter by program and date
@@ -106,16 +114,68 @@ request({
 
      var competitivefiltered = _.filter(body, function(chr) {
        
+     //filter.  assume all false.  remove as you go along.  if still left standing, return true.
+     var flag=false;
+       
+     //date filter  
      var date_award = parseDate(chr.DATE_OF_AWARD);
-     return  (chr.PROGRAM_TYPE === 'EIAF' && date_award>=min_date && date_award<=max_date);
-              
+     if(date_award>=min_date && date_award<=max_date){
+       flag=true;
+       }
+     if(flag===false){return false;} //all those that didnt match the date range
+       
+
+     //program filter
+     if(program){
+     //reset flag 
+     flag=false;
+       if(!chr.PROGRAM_TYPE){return false;} //if falsy program value
+       var programident=chr.PROGRAM_TYPE;
+       for(p=0;p<program.length;p++){
+         if(program[p]===programident){flag=true;}           
+         }
+       if(flag===false){return false;} //all those that didnt match an eligible program
+       }  
+
+     //county filter  
+     if(county){
+     //reset flag 
+     flag=false;
+       if(!chr.COUNTY){return false;} //if falsy county value
+       var datac=(chr.COUNTY).split(", "); //create array of counties in data.  comma-space delimited
+       for(m=0;m<datac.length;m++){
+         for(n=0;n<county.length;n++){
+           if(datac[m]===county[n]){flag=true;}
+         }
+       }
+     if(flag===false){return false;} //all those that didnt match an eligible county       
+     }else{
+       
+     //lgid filter : only applies if no county filter
+     if(lgid){
+       //reset flag 
+       flag=false;
+       if(!chr.LG_ID){return false;} //if falsy lgid value
+       var lgc=chr.LG_ID;
+         for(n=0;n<lgid.length;n++){
+           if(lgc===lgid[n]){flag=true;}
+         }
+     if(flag===false){return false;} //all those that didnt match an eligible lgid
+     }
+       
+     } //end if/else on county
+
+       
+     //escaped all filters.  return true.  
+     return true;  
+       
      });
       
         if (competitivefiltered.length>0) {
     resolve(competitivefiltered);
   }
   else {
-    resolve("No results - Competitive Awards");
+    resolve("");
   }
       
     }
@@ -131,12 +191,66 @@ request({
     url: 'https://dola.colorado.gov/gis-tmp/allformulaic.json',
     json: true
 }, function (error, response, body) {
+
+  
     if (!error && response.statusCode === 200) {
 
      var formulaicfiltered = _.filter(body, function(chr) {
        
+     //filter.  assume all false.  remove as you go along.  if still left standing, return true.
+     var flag=false;
+       
+     //date filter  
      var date_award = parseDate(chr.DIST_DATE);
-     return ((chr.PROGRAM_TYPE === 'SEV_DIST' || chr.PROGRAM_TYPE === 'FML') && date_award>=min_date && date_award<=max_date);
+     if(date_award>=min_date && date_award<=max_date){
+       flag=true;
+       }
+     if(flag===false){return false;} //all those that didnt match the date range
+       
+
+     //program filter
+     if(program){
+     //reset flag 
+     flag=false;
+       if(!chr.PROGRAM_TYPE){return false;} //if falsy program value
+       var programident=chr.PROGRAM_TYPE;
+       for(p=0;p<program.length;p++){
+         if(program[p]===programident){flag=true;}           
+         }
+       if(flag===false){return false;} //all those that didnt match an eligible program
+       }  
+
+     //county filter  
+     if(county){
+     //reset flag 
+     flag=false;
+       if(!chr.COUNTY){return false;} //if falsy county value
+       var datac=(chr.COUNTY).split(", "); //create array of counties in data.  comma-space delimited
+       for(m=0;m<datac.length;m++){
+         for(n=0;n<county.length;n++){
+           if(datac[m]===county[n]){flag=true;}
+         }
+       }
+     if(flag===false){return false;} //all those that didnt match an eligible county       
+     }else{
+       
+     //lgid filter : only applies if no county filter
+     if(lgid){
+       //reset flag 
+       flag=false;
+       if(!chr.LG_ID){return false;} //if falsy lgid value
+       var lgc=chr.LG_ID;
+         for(n=0;n<lgid.length;n++){
+           if(lgc===lgid[n]){flag=true;}
+         }
+     if(flag===false){return false;} //all those that didnt match an eligible lgid
+     }
+       
+     } //end if/else on county
+
+       
+     //escaped all filters.  return true.  
+     return true;  
        
      });
       
@@ -144,7 +258,7 @@ request({
     resolve(formulaicfiltered);
   }
   else {
-    resolve("No results - Formulaic Awards");
+    resolve("");
   }
 
     }
@@ -160,6 +274,12 @@ Promise.all([promise1, promise2]).then(function(values) {
   var competitive = values[0];
   var formulaic = values[1];
 
+  
+  if((competitive.length+formulaic.length)==0){
+    //no results
+   res.send('no results');
+  return;
+  }
   
   var allgrants=[];
   
