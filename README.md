@@ -20,11 +20,12 @@ This is a microservice that will export DOLA grants data (as CSV) based upon que
 Example: All CTF and FML grants in Washington County between Jan 1, 1999 and Dec 10, 2015
 http://fierce-horsepower-145829.nitrousapp.com:4000/gather?start=01-JAN-1999&end=10-DEC-2015&program=CTF,FML&county=Washington
 
-###Parameters
-
-ToDo
+####ToDo
 
 <ul>
 <li>Smart Defaults for Start and End Dates</li>
 <li>Export as JSON option</li>
+<li>More examples</li>
+<li>Tests</li>
+<li>Data Validation Program</li>
 </ul>
