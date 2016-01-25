@@ -18,7 +18,7 @@ This is a microservice that will export DOLA grants data (as CSV) based upon que
 **lgid**: comma delimited list (will be ignored if you specify the county parameter).  default is none.
 
 Example: All CTF and FML grants in Washington County between Jan 1, 1999 and Dec 10, 2015
-http://fierce-horsepower-145829.nitrousapp.com:4000/gather?start=01-JAN-1999&end=10-DEC-2015&program=CTF,FML&county=Washington
+http://red-meteor-147235.nitrousapp.com:4000/gather?start=01-JAN-1999&end=10-DEC-2015&program=CTF,FML&county=Washington
 
 ####ToDo
 
