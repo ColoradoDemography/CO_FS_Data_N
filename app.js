@@ -454,7 +454,7 @@ json2csv({ data: result }, function(err, csv) {
     "Content-Type": "text/csv"
 });
 
-  res.sendFile('file.csv', {"root": ""});
+  res.sendFile('file.csv', {"root": "/"});
     
   });
 });  
