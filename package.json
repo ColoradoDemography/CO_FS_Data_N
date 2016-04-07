@@ -17,6 +17,10 @@
   },
   "homepage": "https://github.com/royhobbstn/CO_FS_Data_N#readme",
   "dependencies": {
-    "express": "^4.13.3"
+    "es6-promise": "^3.1.2",
+    "express": "^4.13.3",
+    "json2csv": "^3.2.0",
+    "lodash": "^4.8.2",
+    "request": "^2.70.0"
   }
 }
