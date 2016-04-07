@@ -454,7 +454,7 @@ json2csv({ data: result }, function(err, csv) {
     "Content-Type": "text/csv"
 });
 
-  res.sendFile('file.csv', {"root": "/home/nitrous/code/public_html/CO_FS_Data_N/"});
+  res.sendFile('file.csv', {"root": ""});
     
   });
 });  
