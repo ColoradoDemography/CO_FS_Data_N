@@ -54,7 +54,7 @@ function parseDate(dateofaward){
 
 
 // respond with "Hello World!" on the homepage
-app.get('/gather', function (req, res) {
+app.get('/grants/gather', function (req, res) {
   
   //date range validation
   var min_date, max_date;
