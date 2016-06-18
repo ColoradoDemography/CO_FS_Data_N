@@ -440,10 +440,12 @@ exportfile(result);
   
 }
   
-  function makeid()
-{
+//export a csv  
+function exportfile(result)  {
+  
+  function makeid(){
     var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     for( var i=0; i < 5; i++ )
         text += possible.charAt(Math.floor(Math.random() * possible.length));
@@ -451,21 +453,19 @@ exportfile(result);
     return text;
 }
   
-//export a csv  
-function exportfile(result)  {
-  
 json2csv({ data: result }, function(err, csv) {
 
   if (err) console.log(err);
   fs.writeFile('file.csv', csv, function(err) {
     if (err) throw err;
     
+    
       res.set({
-    "Content-Disposition": 'attachment; filename="file' + makeid + '.csv"',
+    "Content-Disposition": "attachment; filename=\"file" + makeid + ".csv\"",
     "Content-Type": "text/csv"
 });
 
-  res.sendFile('file' + makeid + '.csv', {"root": "/"});
+  res.sendFile('file.csv', {"root": "/"});
     
   });
 });  
