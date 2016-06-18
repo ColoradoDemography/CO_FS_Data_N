@@ -445,12 +445,12 @@ function exportfile(result)  {
   
   function makeid(){
     var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    var possible = "abcdefghijklmnopqrstuvwxyz";
 
     for( var i=0; i < 5; i++ )
         text += possible.charAt(Math.floor(Math.random() * possible.length));
 
-    return text;
+    return text+".csv";
 }
   
 json2csv({ data: result }, function(err, csv) {
@@ -459,13 +459,13 @@ json2csv({ data: result }, function(err, csv) {
   fs.writeFile('file.csv', csv, function(err) {
     if (err) throw err;
     
-    
-      res.set({
-    "Content-Disposition": "attachment; filename=\"file" + makeid + ".csv\"",
-    "Content-Type": "text/csv"
-});
+   var filename = makeid();
+    console.log(filename);
 
-  res.sendFile('file.csv', {"root": "/"});
+  res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+  res.setHeader('Content-type', "text/csv");
+    
+  res.sendFile('file.csv', {"root": __dirname});
     
   });
 });  
