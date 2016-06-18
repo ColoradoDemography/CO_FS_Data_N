@@ -5,8 +5,10 @@ var Promise = require('es6-promise').Promise;
 var json2csv = require('json2csv');
 var fs = require("fs");  //filestream
 
-var express = require('express');
-var app = express();
+
+//date range
+var min_date = new Date(2008,6,1);
+var max_date = new Date(2015,5,30);
 
 
 //functions
@@ -29,18 +31,13 @@ function parseDate(dateofaward){
   
   //if date is undefined in source data, it will fall through to second return
   if(dateofaward){
-    
-       splitdate=dateofaward.split("-");
-    
-       var awardday=parseInt(splitdate[0]);
-       var awardmonth=splitdate[1];
-       var awardyear=splitdate[2];
+       var awardday=parseInt(dateofaward.substr(0,2));
+       var awardmonth=dateofaward.substr(3,3);
+       var awardyear=dateofaward.substr(7,2);
        
        //hopefully my code doesn't last long enough where this will be a problem
-       var preyear=""; //adds correct century digits if needed
-       if(parseInt(awardyear)>50 && parseInt(awardyear)<100){preyear="19";}
-       if(parseInt(awardyear)<49){preyear="20";}    
-
+       var preyear; //adds correct century digits
+       if(parseInt(awardyear)>50){preyear="19";}else{preyear="20";}
        awardyear=preyear+awardyear;
                   
        return  new Date(parseInt(awardyear), convertmonthtext(awardmonth), awardday);
@@ -49,56 +46,6 @@ function parseDate(dateofaward){
   
   return new Date(1950, 0, 1);  //no date passed - flag error later for data validation
 }
-
-
-
-
-// respond with "Hello World!" on the homepage
-app.get('/gather', function (req, res) {
-  
-  //date range validation
-  var min_date, max_date;
-
-  if(req.query.start){
-    min_date = parseDate(req.query.start);
-  }else{
-    res.send("missing start date");
-    return;
-  }
-  
-  if(req.query.end){
-    max_date = parseDate(req.query.end);
-  }else{
-    res.send("missing end date");
-    return;
-  }        
-
-  if(max_date<min_date){
-    res.send("invalid date range");
-    return;
-  }
-
-  //"FML", "SEV_DIST", "VFP", "CTF", "SAR", "FFB", "EIAF", "GAME", "REDI", "DR", "CSBG", "CDBG", "TIRE", "CHPG", "BEAN"
-  var program = false;
-  
-  if(req.query.program){
-    program=(req.query.program).split(",");
-  }
-  
-  var county = false;
-  
-  if(req.query.county){
-    county=(req.query.county).split(",");
-  }
-  
-  var lgid = false;
-  
-  if(req.query.lgid){
-    lgid=(req.query.lgid).split(",");
-  }
-    
-  
- 
 
 
 //--TASK 1-- filter by program and date
@@ -114,68 +61,16 @@ request({
 
      var competitivefiltered = _.filter(body, function(chr) {
        
-     //filter.  assume all false.  remove as you go along.  if still left standing, return true.
-     var flag=false;
-       
-     //date filter  
      var date_award = parseDate(chr.DATE_OF_AWARD);
-     if(date_award>=min_date && date_award<=max_date){
-       flag=true;
-       }
-     if(flag===false){return false;} //all those that didnt match the date range
-       
-
-     //program filter
-     if(program){
-     //reset flag 
-     flag=false;
-       if(!chr.PROGRAM_TYPE){return false;} //if falsy program value
-       var programident=chr.PROGRAM_TYPE;
-       for(p=0;p<program.length;p++){
-         if(program[p]===programident){flag=true;}           
-         }
-       if(flag===false){return false;} //all those that didnt match an eligible program
-       }  
-
-     //county filter  
-     if(county){
-     //reset flag 
-     flag=false;
-       if(!chr.COUNTY){return false;} //if falsy county value
-       var datac=(chr.COUNTY).split(", "); //create array of counties in data.  comma-space delimited
-       for(m=0;m<datac.length;m++){
-         for(n=0;n<county.length;n++){
-           if(datac[m]===county[n]){flag=true;}
-         }
-       }
-     if(flag===false){return false;} //all those that didnt match an eligible county       
-     }else{
-       
-     //lgid filter : only applies if no county filter
-     if(lgid){
-       //reset flag 
-       flag=false;
-       if(!chr.LG_ID){return false;} //if falsy lgid value
-       var lgc=chr.LG_ID;
-         for(n=0;n<lgid.length;n++){
-           if(lgc===lgid[n]){flag=true;}
-         }
-     if(flag===false){return false;} //all those that didnt match an eligible lgid
-     }
-       
-     } //end if/else on county
-
-       
-     //escaped all filters.  return true.  
-     return true;  
-       
+     return  (chr.PROGRAM_TYPE === 'EIAF' && date_award>=min_date && date_award<=max_date);
+              
      });
       
         if (competitivefiltered.length>0) {
     resolve(competitivefiltered);
   }
   else {
-    resolve("");
+    resolve("No results - Competitive Awards");
   }
       
     }
@@ -191,66 +86,12 @@ request({
     url: 'https://dola.colorado.gov/gis-tmp/allformulaic.json',
     json: true
 }, function (error, response, body) {
-
-  
     if (!error && response.statusCode === 200) {
 
      var formulaicfiltered = _.filter(body, function(chr) {
        
-     //filter.  assume all false.  remove as you go along.  if still left standing, return true.
-     var flag=false;
-       
-     //date filter  
      var date_award = parseDate(chr.DIST_DATE);
-     if(date_award>=min_date && date_award<=max_date){
-       flag=true;
-       }
-     if(flag===false){return false;} //all those that didnt match the date range
-       
-
-     //program filter
-     if(program){
-     //reset flag 
-     flag=false;
-       if(!chr.PROGRAM_TYPE){return false;} //if falsy program value
-       var programident=chr.PROGRAM_TYPE;
-       for(p=0;p<program.length;p++){
-         if(program[p]===programident){flag=true;}           
-         }
-       if(flag===false){return false;} //all those that didnt match an eligible program
-       }  
-
-     //county filter  
-     if(county){
-     //reset flag 
-     flag=false;
-       if(!chr.COUNTY){return false;} //if falsy county value
-       var datac=(chr.COUNTY).split(", "); //create array of counties in data.  comma-space delimited
-       for(m=0;m<datac.length;m++){
-         for(n=0;n<county.length;n++){
-           if(datac[m]===county[n]){flag=true;}
-         }
-       }
-     if(flag===false){return false;} //all those that didnt match an eligible county       
-     }else{
-       
-     //lgid filter : only applies if no county filter
-     if(lgid){
-       //reset flag 
-       flag=false;
-       if(!chr.LG_ID){return false;} //if falsy lgid value
-       var lgc=chr.LG_ID;
-         for(n=0;n<lgid.length;n++){
-           if(lgc===lgid[n]){flag=true;}
-         }
-     if(flag===false){return false;} //all those that didnt match an eligible lgid
-     }
-       
-     } //end if/else on county
-
-       
-     //escaped all filters.  return true.  
-     return true;  
+     return ((chr.PROGRAM_TYPE === 'SEV_DIST' || chr.PROGRAM_TYPE === 'FML') && date_award>=min_date && date_award<=max_date);
        
      });
       
@@ -258,7 +99,7 @@ request({
     resolve(formulaicfiltered);
   }
   else {
-    resolve("");
+    resolve("No results - Formulaic Awards");
   }
 
     }
@@ -269,17 +110,15 @@ request({
 
 //combine to common schema =grantscombined
 //wait for both promises to complete
-Promise.all([promise1, promise2]).then(function(values) {
+Promise.all([promise1, promise2]).then(function(values) { 
 
   var competitive = values[0];
   var formulaic = values[1];
-
   
-  if((competitive.length+formulaic.length)==0){
-    //no results
-   res.send('no results');
-  return;
-  }
+    //console.log(competitive);
+  //console.log(competitive.length);
+  //console.log(formulaic);
+  //console.log(formulaic.length);
   
   var allgrants=[];
   
@@ -338,19 +177,8 @@ Promise.all([promise1, promise2]).then(function(values) {
     );
   }  
   
-  
-  
-  exportfile(allgrants);
-  
-  //splitgrants2counties(allgrants);
-  
- 
-});
-  
-//split multicounty records into multiple records  
-function splitgrants2counties(allgrants){
-  
-    var splitgrants=[];
+
+  var splitgrants=[];
   
   for(j=0;j<(allgrants.length);j=j+1){
     
@@ -358,9 +186,9 @@ function splitgrants2counties(allgrants){
     if(allgrants[j]["COUNTY"]){
     cvar = (allgrants[j]["COUNTY"]);
     if (cvar.indexOf(',') > -1) { 
-
+      //console.log(cvar);
       var countylist=cvar.split(", ");
-
+      //console.log(countylist);
 
       var county_count = countylist.length;
       for(var k=0; k<county_count; k=k+1){
@@ -401,20 +229,26 @@ function splitgrants2counties(allgrants){
     if(comma_check.indexOf(',') === -1){ 
       return true; 
     }else{
+      //console.log('removing: ' + comma_check);
       return false;
     }
       }
     });
-
+    
+    console.log("allgrants: "+allgrants.length);
+    console.log("splitgrants: "+splitgrants.length);
     
     //merge the new array (splitgrants) with the old array (allgrants)
   var countygrants = allgrants.concat(splitgrants);  
   
-   split_awards(countygrants);  
   
-}  
+ split_awards(countygrants);  
+    
+  
+});
 
-//aggregate awards to county level
+//--TASK 2-- aggregate awards to county level
+
 function split_awards(allgrants){
   
 function sum(numbers) {
@@ -422,7 +256,6 @@ function sum(numbers) {
         return result + parseFloat(current);
     }, 0);
 }
-  
 var result = _.chain(allgrants)
     .groupBy("COUNTY")
     .map(function(value, key) {
@@ -433,51 +266,17 @@ var result = _.chain(allgrants)
     })
     .value();
 
-exportfile(result);  
+//console.log(result);
+  
 
-
-  
-  
-}
-  
-  function makeid()
-{
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for( var i=0; i < 5; i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
-}
-  
-//export a csv  
-function exportfile(result)  {
-  
 json2csv({ data: result }, function(err, csv) {
-
+  console.log('hit');
   if (err) console.log(err);
   fs.writeFile('file.csv', csv, function(err) {
     if (err) throw err;
-    
-      res.set({
-    "Content-Disposition": 'attachment; filename="file' + makeid + '.csv"',
-    "Content-Type": "text/csv"
-});
-
-  res.sendFile('file.csv', {"root": "/"});
-    
+    console.log('file saved');
   });
-});  
+});
+  
   
 }
-  
-});
-
-
-var server = app.listen(4004, function () {
-  var host = server.address().address;
-  var port = server.address().port;
-
-  console.log('Example app listening at http://%s:%s', host, port);
-});
