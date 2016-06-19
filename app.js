@@ -450,22 +450,24 @@ function exportfile(result)  {
     for( var i=0; i < 5; i++ )
         text += possible.charAt(Math.floor(Math.random() * possible.length));
 
-    return text+".csv";
+    return "grantExport_" + text + ".csv";
 }
   
 json2csv({ data: result }, function(err, csv) {
-
+  
+var filename = makeid();
+    console.log(filename);
+  
   if (err) console.log(err);
-  fs.writeFile('file.csv', csv, function(err) {
+  fs.writeFile(filename, csv, function(err) {
     if (err) throw err;
     
-   var filename = makeid();
-    console.log(filename);
+   
 
   res.setHeader('Content-disposition', 'attachment; filename=' + filename);
   res.setHeader('Content-type', "text/csv");
     
-  res.sendFile('file.csv', {"root": __dirname});
+  res.sendFile(filename, {"root": __dirname});
     
   });
 });  
