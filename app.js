@@ -118,7 +118,7 @@ request({
      var flag=false;
        
      //date filter  
-     var date_award = parseDate(chr.DATE_OF_AWARD);
+     var date_award = parseDate(chr.AWARD_DATE);
      if(date_award>=min_date && date_award<=max_date){
        flag=true;
        }
