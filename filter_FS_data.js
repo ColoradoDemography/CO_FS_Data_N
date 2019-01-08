@@ -61,7 +61,7 @@ request({
 
      var competitivefiltered = _.filter(body, function(chr) {
        
-     var date_award = parseDate(chr.DATE_OF_AWARD);
+     var date_award = parseDate(chr.AWARD_DATE);
      return  (chr.PROGRAM_TYPE === 'EIAF' && date_award>=min_date && date_award<=max_date);
               
      });
@@ -136,7 +136,7 @@ Promise.all([promise1, promise2]).then(function(values) {
         "PROJECT_NAME": competitive[i].PROJECT_NAME,
         "PROJECT_DESCRIPTION": competitive[i].PROJECT_DESCRIPTION,
         "ENTITY_APPLICANT": competitive[i].APPLICANT_TITLE,  
-        "DATE_OF_AWARD": competitive[i].DATE_OF_AWARD,
+        "AWARD_DATE": competitive[i].AWARD_DATE,
         "FY_AWARD": competitive[i].FY_AWARD,
         "EXECUTION_DATE": competitive[i].EXECUTION_DATE,
         "FY_EXEC": competitive[i].FY_EXEC,
@@ -162,7 +162,7 @@ Promise.all([promise1, promise2]).then(function(values) {
         "PROJECT_NAME": null,
         "PROJECT_DESCRIPTION": null,
         "ENTITY_APPLICANT": formulaic[i].ENTITY_NAME,  
-        "DATE_OF_AWARD": formulaic[i].DIST_DATE,
+        "AWARD_DATE": formulaic[i].DIST_DATE,
         "FY_AWARD": formulaic[i].FISCAL_YEAR,
         "EXECUTION_DATE": formulaic[i].DIST_DATE,
         "FY_EXEC": formulaic[i].FISCAL_YEAR,
@@ -201,7 +201,7 @@ Promise.all([promise1, promise2]).then(function(values) {
         "PROJECT_NAME": allgrants[j].PROJECT_NAME,
         "PROJECT_DESCRIPTION": allgrants[j].PROJECT_DESCRIPTION,
         "ENTITY_APPLICANT": allgrants[j].APPLICANT_TITLE,  
-        "DATE_OF_AWARD": allgrants[j].DATE_OF_AWARD,
+        "AWARD_DATE": allgrants[j].AWARD_DATE,
         "FY_AWARD": allgrants[j].FY_AWARD,
         "EXECUTION_DATE": allgrants[j].EXECUTION_DATE,
         "FY_EXEC": allgrants[j].FY_EXEC,
