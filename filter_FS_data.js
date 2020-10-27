@@ -128,6 +128,7 @@ Promise.all([promise1, promise2]).then(function(values) {
     
     allgrants.push(
       {
+        "DIVISION": competitive[i].DIVISION,
         "LG_ID": competitive[i].LG_ID,
         "COUNTY": competitive[i].COUNTY,
         "PROJECT_NMBR": competitive[i].PROJECT_NMBR,
@@ -146,7 +147,8 @@ Promise.all([promise1, promise2]).then(function(values) {
         "MATCHING_FUNDS": competitive[i].MATCHING_FUNDS,
         "MEASURABLE": competitive[i].MEASURABLE,
         "REGION_MANAGER": competitive[i].REGION_MANAGER,
-        "FS_REGIONS": competitive[i].FS_REGIONS         
+        "FS_REGIONS": competitive[i].FS_REGIONS,
+        "PM_REGION": null        
       }
     );
   }
@@ -154,6 +156,7 @@ Promise.all([promise1, promise2]).then(function(values) {
   for(i=0;i<formulaic.length;i=i+1){
     allgrants.push(
       {
+        "DIVISION": null,
         "LG_ID": formulaic[i].LG_ID,
         "COUNTY": formulaic[i].COUNTY,
         "PROJECT_NMBR": null,
@@ -172,7 +175,8 @@ Promise.all([promise1, promise2]).then(function(values) {
         "MATCHING_FUNDS": null,
         "MEASURABLE": null,
         "REGION_MANAGER": null,
-        "FS_REGIONS": null         
+        "FS_REGIONS": null,
+        "PM_REGION": formulaic[i].PM_REGION       
       }
     );
   }  
