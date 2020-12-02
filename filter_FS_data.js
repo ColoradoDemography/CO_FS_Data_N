@@ -54,7 +54,7 @@ function parseDate(dateofaward){
 var promise1 = new Promise(function(resolve, reject) {
   
 request({
-    url: 'https://dola.colorado.gov/gis-tmp/allcompetitive.json',
+    url: 'https://storage.googleapis.com/co-publicdata/allcompetitive.json',
     json: true
 }, function (error, response, body) {
     if (!error && response.statusCode === 200) {
@@ -83,7 +83,7 @@ request({
 var promise2 = new Promise(function(resolve, reject) {
 
 request({
-    url: 'https://dola.colorado.gov/gis-tmp/allformulaic.json',
+    url: 'https://storage.googleapis.com/co-publicdata/allformulaic.json',
     json: true
 }, function (error, response, body) {
     if (!error && response.statusCode === 200) {
